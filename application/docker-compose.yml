@@ -1,0 +1,80 @@
+version: '3.8'
+services:
+    nginx:
+        image: 'nginx:stable-alpine'
+        container_name: nginx-server
+        restart: always
+        ports:
+            - '8888:80'
+        volumes:
+            - '.:/var/www/html'
+        depends_on:
+            - main
+            - db
+        networks:
+            - common_network
+    main:
+        container_name: app
+        build:
+            context: .
+            dockerfile: Dockerfile
+        command: 'php artisan serve --host=0.0.0.0'
+        volumes:
+            - '.:/var/www/html'
+        ports:
+            - '8000:8000'
+        depends_on:
+            - db
+        networks:
+            - common_network
+    db:
+        image: 'mysql:5.7.22'
+        # image: mysql:5.7.33
+        # image: mysql:8.0.27
+        container_name: db
+        restart: unless-stopped
+        environment:
+            MYSQL_DATABASE: quorumitdb_laravel
+            MYSQL_USER: root
+            MYSQL_PASSWORD: admin
+            MYSQL_ROOT_PASSWORD: admin
+        volumes:
+            - 'db:/var/lib/mysql'
+            # - ./mysql/my.cnf:/etc/mysql/my.cnf
+        ports:
+            - '3306:3306'
+        networks:
+            - common_network
+
+    # phpmyadmin:
+    #     image: phpmyadmin/phpmyadmin
+    #     container_name: PhpMyAdmin
+    #     links:
+    #         - db
+    #     environment:
+    #         PMA_HOST: db
+    #         PMA_PORT: 3306
+    #         PMA_ARBITRARY: 1
+    #     restart: always
+    #     ports:
+    #         - '8081:80'
+    #     networks:
+    #         - common_network
+    node:
+        image: 'node:16'
+        working_dir: /var/www
+        volumes:
+            - './:/var/www'
+            - /var/www/node_modules
+        command: 'sh /var/www/node_start.sh'
+        depends_on:
+            - main
+        networks:
+            - common_network
+
+networks:
+    common_network:
+        driver: bridge
+volumes:
+    db:
+        driver: local

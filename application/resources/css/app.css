@@ -1,0 +1,16 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.min.css';
+
+textarea,
+input[type=password],
+input[type=text],
+input[type=number],
+input[type=email] {
+  outline: none; 
+  border: none;
+  background-color: #eee;
+  box-shadow: none !important;
+}
+.dropdown-menu {
+  border: none;
+}
